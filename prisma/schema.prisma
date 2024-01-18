@@ -11,13 +11,16 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  email String @unique
-  password String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  roles Role[]
-  Token Token[]
+  id Int @id @default(autoincrement())
+  email     String    @unique
+  password  String?
+  provider  Provider?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  roles     Role[]
+  Token     Token[]
+  isBlocked Boolean   @default(false) @map("is_blocked")
+
   @@map("users")
 }
 
@@ -25,11 +28,18 @@ model Token {
   token String @unique
   exp DateTime
   user User @relation(fields: [userId], references: [id])
-  userId String
+  userId Int
+  userAgent String   @map("user_agent")
+
   @@map("tokens")
 }
 
 enum Role {
   ADMIN
   USER
+}
+
+enum Provider {
+  GOOGLE
+  YANDEX
 }

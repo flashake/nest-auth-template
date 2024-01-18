@@ -13,13 +13,19 @@ export class UserService {
     });
   }
 
-  findOne(idOrEmail: string) {
+  findOne(id: number) {
     return this.prismaService.user.findFirst({
-      where: { OR: [{ id: idOrEmail }, { email: idOrEmail }] },
+      where: { id: id },
     });
   }
 
-  remove(id: string) {
+  findOneByEmail(email: string) {
+    return this.prismaService.user.findFirst({
+      where: { email: email },
+    });
+  }
+
+  remove(id: number) {
     return this.prismaService.user.delete({ where: { id } });
   }
 

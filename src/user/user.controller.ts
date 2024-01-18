@@ -25,15 +25,15 @@ export class UserController {
 
   @ApiOperation({ summary: 'Полуение пользователя' })
   @ApiResponse({ status: 200, type: CreateUserDto }) // TODO: add responses types
-  @Get(':idOrEmail')
-  findOne(@Param('idOrEmail') idOrEmail: string) {
-    return this.userService.findOne(idOrEmail);
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.userService.findOne(id);
   }
 
   @ApiOperation({ summary: 'Удаление пользователя' })
   @ApiResponse({ status: 200, type: CreateUserDto }) // TODO: add responses types
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: number) {
     return this.userService.remove(id);
   }
 }

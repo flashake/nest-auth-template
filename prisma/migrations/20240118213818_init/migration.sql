@@ -1,14 +1,19 @@
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
 
+-- CreateEnum
+CREATE TYPE "Provider" AS ENUM ('GOOGLE', 'YANDEX');
+
 -- CreateTable
 CREATE TABLE "users" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "password" TEXT,
+    "provider" "Provider",
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "roles" "Role"[],
+    "is_blocked" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -17,7 +22,8 @@ CREATE TABLE "users" (
 CREATE TABLE "tokens" (
     "token" TEXT NOT NULL,
     "exp" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT NOT NULL
+    "userId" INTEGER NOT NULL,
+    "user_agent" TEXT NOT NULL
 );
 
 -- CreateIndex
