@@ -1,1 +1,1 @@
-export { CreateUserDto } from './create-user.dto';
+export { AddRoleDto } from './add-role.dto';

@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -9,7 +11,7 @@ import { LoginDto, RegisterDto } from './dto';
 import { UserService } from '../user/user.service';
 import { Tokens } from './interfaces';
 import { compare } from 'bcrypt';
-import { Token, User } from '@prisma/client';
+import { Provider, Token, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 } from 'uuid';
@@ -51,7 +53,7 @@ export class AuthService {
 
   async login(payload: LoginDto, agent: string): Promise<Tokens> {
     const user: User = await this.userService
-      .findOneByEmail(payload.email)
+      .findOneByEmail(payload.email, true)
       .catch((err) => {
         this.logger.error(err);
         throw new InternalServerErrorException('Что то пошло не так');
@@ -61,6 +63,33 @@ export class AuthService {
 
     if (!user || !passwordsEq) {
       throw new UnauthorizedException('Не верный логин или пароль');
+    }
+
+    return this.generateTokens(user, agent);
+  }
+
+  async providerAuth(email: string, agent: string, provider: Provider) {
+    const userExists = await this.userService.findOneByEmail(email);
+    if (userExists) {
+      const user = await this.userService
+        .create({ email, provider })
+        .catch((err) => {
+          this.logger.error(err);
+          return null;
+        });
+      return this.generateTokens(user, agent);
+    }
+    const user = await this.userService
+      .create({ email, provider })
+      .catch((err) => {
+        this.logger.error(err);
+        return null;
+      });
+    if (!user) {
+      throw new HttpException(
+        `Не получилось создать пользователя с email ${email}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.generateTokens(user, agent);
